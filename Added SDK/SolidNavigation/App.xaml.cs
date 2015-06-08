@@ -1,18 +1,22 @@
-﻿using SolidNavigation.Details;
-using SolidNavigation.Lists;
-using SolidNavigation.Navigation;
-using SolidNavigation.Sdk;
+﻿using System;
 using SolidNavigation.Tasks;
+using SolidNavigation.Lists;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.Activation;
 using Windows.UI.Core;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using SolidNavigation.Details;
+using SolidNavigation.Navigation;
+using SolidNavigation.Sdk;
 
-namespace SolidNavigation {
-    sealed partial class App : Application {
+namespace SolidNavigation
+{
+    sealed partial class App : Application
+    {
         public static Microsoft.ApplicationInsights.TelemetryClient TelemetryClient;
-        public App() {
+        public App()
+        {
             TelemetryClient = new Microsoft.ApplicationInsights.TelemetryClient();
 
             this.InitializeComponent();
@@ -25,12 +29,15 @@ namespace SolidNavigation {
             Router.Current.AddRoute("", typeof(ListsPage), typeof(HomeTarget));
         }
 
-        private void InitFrame() {
+        private void InitFrame()
+        {
             var frame = Window.Current.Content as Frame;
             if (frame == null) {
                 frame = new Frame();
                 Window.Current.Content = frame;
             }
+
+            SuspensionManager.RegisterFrame(frame, "AppFrame");
 
             SystemNavigationManager.GetForCurrentView().BackRequested += (s, e) => {
                 if (frame.CanGoBack) {
@@ -39,32 +46,45 @@ namespace SolidNavigation {
             };
         }
 
-        protected override void OnActivated(IActivatedEventArgs args) {
+        protected override void OnActivated(IActivatedEventArgs args)
+        {
             base.OnActivated(args);
 
             InitFrame();
 
             if (args.Kind == ActivationKind.Protocol) {
-                var protocolArgs = (ProtocolActivatedEventArgs)args;
-                NavigateService.Current.Navigate(protocolArgs.Uri + "");
+                var pa = args as ProtocolActivatedEventArgs;
+                var id = pa.Uri.ToString().Split('/')[2];
+                ((Frame)Window.Current.Content).Navigate(typeof(TasksPage), id);
             }
+            else {
 
+                ((Frame)Window.Current.Content).Navigate(typeof(ListsPage));
+            }
             Window.Current.Activate();
         }
 
-        protected async override void OnLaunched(LaunchActivatedEventArgs e) {
+        protected async override void OnLaunched(LaunchActivatedEventArgs e)
+        {
             InitFrame();
 
             if (e.PreviousExecutionState == ApplicationExecutionState.Terminated) {
                 await SuspensionManager.RestoreAsync();
-            } else {
-                NavigateService.Current.Navigate(e.Arguments);
+            }
+            else {
+                if (e.Arguments != "") {
+                    ((Frame)Window.Current.Content).Navigate(typeof(TasksPage), e.Arguments);
+                }
+                else {
+                    ((Frame)Window.Current.Content).Navigate(typeof(ListsPage));
+                }
             }
 
             Window.Current.Activate();
         }
 
-        private async void OnSuspending(object sender, SuspendingEventArgs e) {
+        private async void OnSuspending(object sender, SuspendingEventArgs e)
+        {
             var deferral = e.SuspendingOperation.GetDeferral();
 
             await SuspensionManager.SaveAsync();

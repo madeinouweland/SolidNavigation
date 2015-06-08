@@ -2,6 +2,9 @@
 using System.Linq;
 using SolidNavigation.Entities;
 using SolidNavigation.Navigation;
+using SolidNavigation.Tasks;
+using Windows.UI.Xaml;
+using Windows.UI.Xaml.Controls;
 
 namespace SolidNavigation.Lists {
     public class ListsPageViewModel : ObservableObject {
@@ -20,7 +23,7 @@ namespace SolidNavigation.Lists {
                 if (newValue != _selectedList) {
                     _selectedList = (ListViewModel)value;
                     NotifyOfPropertyChange(() => SelectedList);
-                    NavigateService.Current.Navigate(new TaskListTarget(_selectedList.Id));
+                    ((Frame)Window.Current.Content).Navigate(typeof(TasksPage), _selectedList.Id);
                 }
             }
         }

@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using SolidNavigation.Navigation;
 using SolidNavigation.Entities;
 using SolidNavigation.Navigation;
 using SolidNavigation.Tasks;

@@ -1,7 +1,9 @@
 ﻿using System;
+using SolidNavigation.Tasks;
 using SolidNavigation.Lists;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.Activation;
+using Windows.UI.Core;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 
@@ -21,6 +23,12 @@ namespace SolidNavigation {
                 frame = new Frame();
                 Window.Current.Content = frame;
             }
+
+            SystemNavigationManager.GetForCurrentView().BackRequested += (s, e) => {
+                if (frame.CanGoBack) {
+                    frame.GoBack();
+                }
+            };
         }
 
         protected override void OnActivated(IActivatedEventArgs args) {
@@ -28,6 +36,7 @@ namespace SolidNavigation {
 
             InitFrame();
 
+            ((Frame)Window.Current.Content).Navigate(typeof(ListsPage));
             Window.Current.Activate();
         }
 
